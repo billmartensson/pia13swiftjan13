@@ -12,11 +12,13 @@ import Foundation
 import UIKit
 import SwiftUI
 
-class DoModel : ObservableObject {
+@Observable class DoModel {
     
-    @Published var resultText = ""
-    @Published var outimg : UIImage?
+    var resultText = ""
+    var outimg : UIImage?
 
+    var resultprice : Double = 0
+    
     func doImage(theimageIn : Image) {
         
         var theimage = UIImage()
@@ -32,14 +34,6 @@ class DoModel : ObservableObject {
     func processImage(theimage : UIImage) {
         let defaultConfig = MLModelConfiguration()
 
-        // Create an instance of the image classifier's wrapper class.
-        //let imageClassifierWrapper = try? MobileNet(configuration: defaultConfig)
-        //let scaledImage = scale(inimage: theimage, newWidth: 224)
-
-        
-        //let imageClassifierWrapper = try? ElecatClassifier_1(configuration: defaultConfig)
-        //let scaledImage = scale(inimage: theimage, newWidth: 299)
-
         let imageClassifierWrapper = try? PIA13ImageClassifier_1(configuration: defaultConfig)
         let scaledImage = scale(inimage: theimage, newWidth: 360)
             
@@ -50,12 +44,6 @@ class DoModel : ObservableObject {
         do {
             let output = try imageClassifierWrapper!.prediction(image: theimageBuffer)
             
-            /*
-            resultText = output.classLabel
-            print(output.classLabel)
-            print(output.classLabelProbs[output.classLabel]!)
-            */
-
             
             resultText = output.target
             print(output.target)
@@ -142,5 +130,18 @@ class DoModel : ObservableObject {
         
     }
     */
+    
+    func testRealestate(inbeds : Int, inbaths : Int, insqft : Int) {
+        
+        let defaultConfig = MLModelConfiguration()
+        let realestate = try? NYrealestateModel(configuration: defaultConfig)
+        
+        let realestateinput = NYrealestateModelInput(beds: Int64(inbeds), baths: Int64(inbaths), sqft: Int64(insqft))
+        
+        let realestateresult = try? realestate!.prediction(input: realestateinput)
+        
+        resultprice = realestateresult!.tx_price
+    }
+    
     
 }
